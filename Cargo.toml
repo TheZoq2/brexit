@@ -1,6 +1,6 @@
 [package]
 name = "brexit"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["TheZoq2 <frans.skarman@protonmail.com>"]
 edition = "2018"
 description = "impl Drop but slowly"
