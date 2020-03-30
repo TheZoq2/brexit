@@ -11,3 +11,5 @@ license-file = "LICENSE"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+xml5ever = "0.16.1"
+markup5ever_rcdom = "0.1.0"
