@@ -19,7 +19,7 @@ This program will print "The UK has left" after 3 years.
     fn main() {
         let uk = UnitedKingdom{};
         brexit(uk);
-        thread::sleep(Duration::from_secs(60*24*365*4));
+        thread::sleep(Duration::from_secs(60*60*24*365*4));
     }
 ```
 
