@@ -1,8 +1,12 @@
 [package]
 name = "brexit"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["TheZoq2 <frans.skarman@protonmail.com>"]
 edition = "2018"
+description = "impl Drop but slowly"
+readme = "README.md"
+repository = "https://github.com/TheZoq2/brexit"
+license-file = "LICENSE"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
