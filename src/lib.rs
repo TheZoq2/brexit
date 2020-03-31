@@ -7,7 +7,7 @@ use self::config::Config;
 const CONFIG: &str = include_str!("../Config.xml");
 
 pub fn brexit<T>(o: T) where T: Sync+Send+'static {
-    let config = Config::parse(CONFIG);
+    let config = Config::new(CONFIG);
     let duration = config.duration();
 
     thread::spawn(move || {

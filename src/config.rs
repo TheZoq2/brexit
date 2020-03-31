@@ -1,71 +1,67 @@
 use std::time::Duration;
 
-use markup5ever_rcdom::{Handle, NodeData, RcDom};
+use markup5ever_rcdom::NodeData::{Element, Text};
+use markup5ever_rcdom::{Handle, RcDom};
 
 use xml5ever::driver::parse_document;
 use xml5ever::tendril::TendrilSink;
 
+const SECONDS: u64 = 60 * 60 * 24 * 365 * 3;
+
 pub struct Config {
-    duration: Duration,
+    dom: RcDom,
 }
 
 impl Config {
-    pub fn parse(config: &str) -> Self {
-        let parser = parse_document(RcDom::default(), Default::default());
+    pub fn new(config: &str) -> Self {
+        let sink = RcDom::default();
+        let opts = Default::default();
 
-        let dom = parser.one(config);
-        let doc = dom.document.clone();
+        let xml = parse_document(sink, opts);
+        let dom = xml.one(config);
 
-        let duration = if Self::is_extended(doc) {
-            Duration::from_secs(60 * 60 * 24 * 365 * 3 + 1)
-        } else {
-            Duration::from_secs(60 * 60 * 24 * 365 * 3)
-        };
-
-        Config { duration }
+        Config { dom }
     }
 
     pub fn duration(&self) -> Duration {
-        self.duration
+        if self.should_extend() {
+            Duration::from_secs(SECONDS + 1)
+        } else {
+            Duration::from_secs(SECONDS)
+        }
     }
 
-    fn is_extended(doc: Handle) -> bool {
-        for node in doc.children.borrow().iter() {
-            if let Some(node) = Self::find_extended_node(node.clone()) {
-                if let Some(text) = Self::find_extended_value(node) {
-                    return text == "true";
+    fn should_extend(&self) -> bool {
+        let document = &self.dom.document;
+        let children = document.children.borrow();
+
+        children
+            .iter()
+            .filter_map(Self::find_extend_node)
+            .filter_map(Self::find_extend_text)
+            .map(|text| text.trim().to_lowercase())
+            .any(|text| text == "true")
+    }
+
+    fn find_extend_node(handle: &Handle) -> Option<Handle> {
+        for node in &*handle.children.borrow() {
+            if let Element { name, .. } = &node.data {
+                if &name.local == "extend" {
+                    return Some(node.clone());
                 }
-            };
+            }
         }
 
-        false
+        None
     }
 
-    fn find_extended_node(config: Handle) -> Option<Handle> {
-        let children = &*config.children.borrow();
-
-        let matches = children.iter().find(|node| {
-            if let NodeData::Element { name, .. } = &node.data {
-                &name.local == "extended"
-            } else {
-                false
+    fn find_extend_text(handle: Handle) -> Option<String> {
+        for node in &*handle.children.borrow() {
+            if let Text { contents } = &node.data {
+                return Some(contents.borrow().to_string());
             }
-        });
+        }
 
-        matches.map(|rc| rc.clone())
-    }
-
-    fn find_extended_value(node: Handle) -> Option<String> {
-        let children = &*node.children.borrow();
-
-        let mut iter = children.iter().filter_map(|node| {
-            if let NodeData::Text { contents } = &node.data {
-                Some(contents)
-            } else {
-                None
-            }
-        });
-
-        iter.next().map(|c| c.borrow().to_string())
+        None
     }
 }
