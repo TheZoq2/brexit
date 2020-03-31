@@ -65,3 +65,35 @@ impl Config {
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+    use super::{SECONDS, Config};
+
+    const TEMPLATE: &str = r#"
+        <configuration>
+            <extend>{}</extend>
+        </configuration>
+    "#;
+
+    #[test]
+    fn test_normal_duration() {
+        let text = TEMPLATE.replace("{}", "false");
+        let config = Config::new(&text);
+
+        let expected = Duration::from_secs(SECONDS);
+
+        assert_eq!(expected, config.duration());
+    }
+
+    #[test]
+    fn test_extended_duration() {
+        let text = TEMPLATE.replace("{}", "true");
+        let config = Config::new(&text);
+
+        let expected = Duration::from_secs(SECONDS + 1);
+
+        assert_eq!(expected, config.duration());
+    }
+}
