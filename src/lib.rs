@@ -1,9 +1,17 @@
+mod config;
+
 use std::thread;
-use std::time::Duration;
+
+use self::config::Config;
+
+const CONFIG: &str = include_str!("../Config.xml");
 
 pub fn brexit<T>(o: T) where T: Sync+Send+'static {
+    let config = Config::new(CONFIG);
+    let duration = config.duration();
+
     thread::spawn(move || {
-        thread::sleep(Duration::from_secs(60*60*24*365*3));
+        thread::sleep(duration);
         drop(o)
     });
 }
